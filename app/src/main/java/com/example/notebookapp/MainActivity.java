@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast;
                 if(given_password.equals(password)){
                     toast = Toast.makeText(getApplicationContext(), "correct", Toast.LENGTH_LONG);
-                    openNotebookActivity();
+                    openActivity();
                 }
                 else{
                     toast = Toast.makeText(getApplicationContext(), "nope", Toast.LENGTH_LONG);
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    public void openNotebookActivity(){
+    public void openActivity(){
         Intent intent = new Intent(this,NotebookActivity.class);
         startActivity(intent);
     }
