@@ -24,6 +24,8 @@ public class NotebookActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 System.out.println("b_change_password");
+                openActivity();
+
             }
         });
 
@@ -36,5 +38,8 @@ public class NotebookActivity extends AppCompatActivity {
 
 
     }
-
+    public void openActivity(){
+        Intent intent = new Intent(this, ChangePasswordActivity.class);
+        startActivity(intent);
+    }
 }
