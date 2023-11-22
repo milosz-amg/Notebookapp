@@ -16,9 +16,10 @@ public class NotebookActivity extends AppCompatActivity {
     private Button b_change_password;
     private Button b_save_note;
     private EditText edit_note;
+    private String note_text;
+
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String TEXT = "text";
-    private String note_text;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +34,6 @@ public class NotebookActivity extends AppCompatActivity {
             public void onClick(View view) {
                 System.out.println("b_change_password");
                 openActivity();
-
             }
         });
 
@@ -70,3 +70,4 @@ public class NotebookActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
+//SHP: SOIL - PASSWORD - NOTE - wszystko hashowane

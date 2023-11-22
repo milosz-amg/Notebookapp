@@ -1,8 +1,9 @@
 package com.example.notebookapp;
-
+//PS:123
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,11 +11,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-
-
     TextView tv_password;
     Button b_password;
-    String password = "123";
+    public static final String SHARED_PREFS = "sharedPrefs";
+
+    public static final String PASSWORD = "password";
+    String password = "12344";
     String given_password="";
 
     @Override
@@ -28,24 +30,30 @@ public class MainActivity extends AppCompatActivity {
         b_password.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 given_password = tv_password.getText().toString();
-
                 Toast toast;
                 if(given_password.equals(password)){
                     toast = Toast.makeText(getApplicationContext(), "correct", Toast.LENGTH_LONG);
                     openActivity();
                 }
                 else{
-                    toast = Toast.makeText(getApplicationContext(), "nope", Toast.LENGTH_LONG);
+                    toast = Toast.makeText(getApplicationContext(), "password is not correct", Toast.LENGTH_LONG);
 
                 }
                 toast.show();
             }
         });
+        loadData();
     }
+
+
     public void openActivity(){
         Intent intent = new Intent(this,NotebookActivity.class);
         startActivity(intent);
+    }
+
+    public void loadData(){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        password = sharedPreferences.getString(PASSWORD, "123"); //default password to 123
     }
 }
