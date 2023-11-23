@@ -7,8 +7,12 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Hashing {
     public static void debugMessage(){
@@ -41,8 +45,73 @@ public class Hashing {
         return hashedPassword.equals(hashedUserInput);
     }
 
+    public static String encryptNote(String note, String key, byte[] salt) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
+            // Wyznacz klucz z hasła i soli
+            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, 10000, 256);
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] derivedKey = skf.generateSecret(spec).getEncoded();
+            SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
 
+            // Wygeneruj losowy wektor inicjalizacyjny (IV)
+            SecureRandom random = SecureRandom.getInstanceStrong();
+            byte[] iv = new byte[16];
+            random.nextBytes(iv);
 
+            // Zainicjuj szyfrowanie kluczem i IV
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
+
+            // Zaszyfruj notatkę
+            byte[] encryptedBytes = cipher.doFinal(note.getBytes());
+
+            // Połącz IV i zaszyfrowaną notatkę do przechowywania
+            byte[] combined = new byte[iv.length + encryptedBytes.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(encryptedBytes, 0, combined, iv.length, encryptedBytes.length);
+
+            return Base64.getEncoder().encodeToString(combined);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String decryptNote(String encryptedNote, String key, byte[] salt) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            // Zdekoduj połączony IV i zaszyfrowaną notatkę
+            byte[] combined = Base64.getDecoder().decode(encryptedNote);
+
+            // Wyodrębnij IV
+            byte[] iv = new byte[16];
+            System.arraycopy(combined, 0, iv, 0, iv.length);
+
+            // Wyodrębnij zaszyfrowaną notatkę
+            byte[] encryptedBytes = new byte[combined.length - iv.length];
+            System.arraycopy(combined, iv.length, encryptedBytes, 0, encryptedBytes.length);
+
+            // Wyznacz klucz z hasła i soli
+            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, 10000, 256);
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] derivedKey = skf.generateSecret(spec).getEncoded();
+            SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
+
+            // Inicjuj szyfrowanie kluczem i IV
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
+
+            // Odszyfruj notatkę
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+
+            return new String(decryptedBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }

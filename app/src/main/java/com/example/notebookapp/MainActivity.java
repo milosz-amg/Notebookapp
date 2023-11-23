@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String SALT ="salt";
     String password_hash = "";
     String salt_s ="";
-    String given_password="";
+    public static String given_password="";
 
     byte[] salt;
 
@@ -73,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public static String getGiven_password() {
+        return given_password;
+    }
 
     public void openActivity(){
         Intent intent = new Intent(this,NotebookActivity.class);
