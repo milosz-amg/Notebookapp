@@ -16,13 +16,13 @@ public class Hashing {
     }
 
     // Generowanie soli
-    private static byte[] generateSalt() {
+    public static byte[] generateSalt() {
         byte[] salt = new byte[16];
         new SecureRandom().nextBytes(salt);
         return salt;
     }
 
-    private static String hashPassword(String password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static String hashPassword(String password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
         int iterations = 10000; // You can adjust the number of iterations
         int keyLength = 256; // You can adjust the key length
 
@@ -33,7 +33,7 @@ public class Hashing {
         return Base64.getEncoder().encodeToString(hash);
     }
 
-    private static boolean verifyPassword(String userInput, String hashedPassword, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static boolean verifyPassword(String userInput, String hashedPassword, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
         // Hash the user input with the stored salt
         String hashedUserInput = hashPassword(userInput, salt);
 

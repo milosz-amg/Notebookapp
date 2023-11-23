@@ -4,10 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
@@ -20,8 +24,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private Button b_confirm;
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String PASSWORD = "password";
+    public static final String SALT ="salt";
+
 
     public String shp_password;
+    public String salt_s;
+    public byte[] salt;
 
 
     @Override
@@ -43,10 +51,24 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 old_password = et_old_password.getText().toString();
                 new_password = et_new_password.getText().toString();
                 confirm_new_password = et_confirm_new_password.getText().toString();
+                String old_password_hash;
+                try {
+                    old_password_hash = Hashing.hashPassword(old_password,salt);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                } catch (InvalidKeySpecException e) {
+                    throw new RuntimeException(e);
+                }
 
-                if(old_password.equals(shp_password)){
+                if(old_password_hash.equals(shp_password)){
                     if(new_password.equals(confirm_new_password)){
-                        updateData();
+                        try {
+                            updateData();
+                        } catch (NoSuchAlgorithmException e) {
+                            throw new RuntimeException(e);
+                        } catch (InvalidKeySpecException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     else {
                         System.out.println("n_ps!=c_n_ps");
@@ -61,15 +83,23 @@ public class ChangePasswordActivity extends AppCompatActivity {
     }
     public void loadData(){
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        shp_password = sharedPreferences.getString(PASSWORD, "123");
+        shp_password = sharedPreferences.getString(PASSWORD, "AA0bmfcKC9opGRK362q7regVwNWwJSUDE5EzOhe5nxM=");
+        salt_s = sharedPreferences.getString(SALT,"9NfgJm0Sx5Y0i/9MisTktg==");
+        salt = Base64.decode(salt_s,Base64.DEFAULT);
     }
 
-    public void updateData(){
+    public void updateData() throws NoSuchAlgorithmException, InvalidKeySpecException {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putString(PASSWORD,et_new_password.getText().toString());
+        byte[] new_salt = Hashing.generateSalt();
+        String new_password_hash = Hashing.hashPassword(new_password,new_salt);
+        String new_salt_s = Base64.encodeToString(new_salt,Base64.DEFAULT);
+
+        editor.putString(PASSWORD,new_password_hash);
+        editor.putString(SALT, new_salt_s);
         editor.apply();
+
         Toast.makeText(this, "Password updated", Toast.LENGTH_SHORT).show();
     }
 }
