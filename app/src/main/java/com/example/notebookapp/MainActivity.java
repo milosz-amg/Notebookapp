@@ -10,13 +10,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 public class MainActivity extends AppCompatActivity {
     TextView tv_password;
     Button b_password;
     public static final String SHARED_PREFS = "sharedPrefs";
 
     public static final String PASSWORD = "password";
-    String password = "12344";
+    String password = "";
     String given_password="";
 
     @Override
@@ -30,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
         b_password.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                given_password = tv_password.getText().toString();
                 Toast toast;
+                given_password = tv_password.getText().toString();
                 if(given_password.equals(password)){
                     toast = Toast.makeText(getApplicationContext(), "correct", Toast.LENGTH_LONG);
                     openActivity();
