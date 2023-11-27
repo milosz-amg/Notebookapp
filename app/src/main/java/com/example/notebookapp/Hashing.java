@@ -47,7 +47,7 @@ public class Hashing {
 
     public static String encryptNote(String note, String key, byte[] salt) {
         try {
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES/CFB/PKCS5Padding");
 
             // Wyznacz klucz z hasła i soli
             PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, 10000, 256);
@@ -55,7 +55,7 @@ public class Hashing {
             byte[] derivedKey = skf.generateSecret(spec).getEncoded();
             SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
 
-            // Wygeneruj losowy wektor inicjalizacyjny (IV)
+            // Wygeneruj losowy wektor inicjalizacyjny
             SecureRandom random = SecureRandom.getInstanceStrong();
             byte[] iv = new byte[16];
             random.nextBytes(iv);
@@ -71,6 +71,7 @@ public class Hashing {
             System.arraycopy(iv, 0, combined, 0, iv.length);
             System.arraycopy(encryptedBytes, 0, combined, iv.length, encryptedBytes.length);
 
+            //zakoduj do Stringa i zwróć
             return Base64.getEncoder().encodeToString(combined);
 
         } catch (Exception e) {
@@ -81,9 +82,9 @@ public class Hashing {
 
     public static String decryptNote(String encryptedNote, String key, byte[] salt) {
         try {
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES/CFB/PKCS5Padding");
 
-            // Zdekoduj połączony IV i zaszyfrowaną notatkę
+            // Zdekoduj połączony IV i zaszyfrowaną notatkę do tablicy bitowej
             byte[] combined = Base64.getDecoder().decode(encryptedNote);
 
             // Wyodrębnij IV

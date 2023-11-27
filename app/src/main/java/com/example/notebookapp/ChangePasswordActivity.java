@@ -63,7 +63,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 if(old_password_hash.equals(shp_password)){
                     if(new_password.equals(confirm_new_password)){
                         try {
-                            updateData();
+                            if(checkPasswordRequirements(new_password)){
+                                updateData();
+                                //save data notatki recznie :((
+
+                            }
+                            else {
+                                Toast.makeText(ChangePasswordActivity.this,"Password dont match requirements",Toast.LENGTH_SHORT).show();
+                            }
                         } catch (NoSuchAlgorithmException e) {
                             throw new RuntimeException(e);
                         } catch (InvalidKeySpecException e) {
@@ -80,6 +87,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public boolean checkPasswordRequirements(String password){
+        System.out.println("test");
+        if(password.length()<8){    //WYMAGANIA WG WYKLADU, NAJLEPSZE DLUGIE HASLO Z KILKU SLOW....
+            return false;
+        }
+        return true;
     }
     public void loadData(){
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);

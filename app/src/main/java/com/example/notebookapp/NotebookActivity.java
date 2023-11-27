@@ -57,8 +57,8 @@ public class NotebookActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         note_text = edit_note.getText().toString();
-//        String key = MainActivity.getGiven_password();
-        String key = sharedPreferences.getString(PASSWORD,"AA0bmfcKC9opGRK362q7regVwNWwJSUDE5EzOhe5nxM=");
+        String key = MainActivity.getGiven_password();
+//        String key = sharedPreferences.getString(PASSWORD,"AA0bmfcKC9opGRK362q7regVwNWwJSUDE5EzOhe5nxM=");
         String salt_s=sharedPreferences.getString(SALT,"9NfgJm0Sx5Y0i/9MisTktg==");
         byte[] salt = Base64.decode(salt_s,Base64.DEFAULT);
         String note_text_encrypted = Hashing.encryptNote(note_text,key,salt);
@@ -69,10 +69,12 @@ public class NotebookActivity extends AppCompatActivity {
     }
     public void loadData(){
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        String key = sharedPreferences.getString(PASSWORD,"AA0bmfcKC9opGRK362q7regVwNWwJSUDE5EzOhe5nxM=");
+//        String key = sharedPreferences.getString(PASSWORD,"AA0bmfcKC9opGRK362q7regVwNWwJSUDE5EzOhe5nxM=
+        String key = MainActivity.getGiven_password();
         String note_text_encrypted = sharedPreferences.getString(TEXT,"Tu będzie twoja notatka");
         String salt_s=sharedPreferences.getString(SALT,"9NfgJm0Sx5Y0i/9MisTktg==");
         byte[] salt = Base64.decode(salt_s,Base64.DEFAULT);
+        //CZY LEPIEJ UŻYĆ HASLA STRING CZY JEGO HASH??
         note_text = Hashing.decryptNote(note_text_encrypted,key,salt);
     }
     public void updateViews(){
