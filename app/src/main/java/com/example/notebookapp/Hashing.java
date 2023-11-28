@@ -32,7 +32,6 @@ public class Hashing {
 
         //co bedziemy szyfrowac
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
-        //jakim algorytmem
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         //PBKDF2 popularne dla systemów mobilnych (IOS używa):
         //-potrzebuje mało mocy obliczeniowej - mało energii
@@ -58,6 +57,7 @@ public class Hashing {
             //jak będziemy szyfrować
             //AES - advanced encription standard
             //OFB - output feedback
+            //PKCS5 - jeżeli text jawny nie jest wielokrotnoscia 8 bitów padding
             Cipher cipher = Cipher.getInstance("AES/OFB/PKCS5Padding");
 
             // Wyznacz klucz z hasła i soli
