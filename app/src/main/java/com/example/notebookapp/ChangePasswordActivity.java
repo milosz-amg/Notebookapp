@@ -65,6 +65,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         try {
                             if(checkPasswordRequirements(new_password)){
                                 updateData();
+                                MainActivity.setGiven_password(new_password);   //tekst hasła używany do szyfrowania notatki
+                                                                                //musi byc zaktualizowany
                                 //save data notatki recznie :((
 
                             }

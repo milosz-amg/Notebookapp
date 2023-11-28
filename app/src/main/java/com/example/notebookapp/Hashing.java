@@ -27,35 +27,46 @@ public class Hashing {
     }
 
     public static String hashPassword(String password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        int iterations = 10000; // You can adjust the number of iterations
-        int keyLength = 256; // You can adjust the key length
+        int iterations = 10000;
+        int keyLength = 256;
 
+        //co bedziemy szyfrowac
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
+        //jakim algorytmem
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        //PBKDF2 popularne dla systemów mobilnych (IOS używa):
+        //-potrzebuje mało mocy obliczeniowej - mało energii
+        //-podatny na brute force
+        //-trudno zaprogramować atak bruteforce na PBKDF2 na karcie graficznej
         byte[] hash = skf.generateSecret(spec).getEncoded();
 
         return Base64.getEncoder().encodeToString(hash);
     }
 
     public static boolean verifyPassword(String userInput, String hashedPassword, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        // Hash the user input with the stored salt
+        // hashuj haslo podane
         String hashedUserInput = hashPassword(userInput, salt);
 
-        // Compare the stored hash with the hash of the user input
+        // porownaj z hashem z sharedpreferecnes
         return hashedPassword.equals(hashedUserInput);
     }
 
     public static String encryptNote(String note, String key, byte[] salt) {
         try {
-            Cipher cipher = Cipher.getInstance("AES/CFB/PKCS5Padding");
+            int iterations = 10000;
+            int keyLength = 256;
+            //jak będziemy szyfrować
+            //AES - advanced encription standard
+            //OFB - output feedback
+            Cipher cipher = Cipher.getInstance("AES/OFB/PKCS5Padding");
 
             // Wyznacz klucz z hasła i soli
-            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, 10000, 256);
+            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, iterations, keyLength);
             SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             byte[] derivedKey = skf.generateSecret(spec).getEncoded();
             SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
 
-            // Wygeneruj losowy wektor inicjalizacyjny
+            // Wygeneruj losowy wektor inicjalizacyjny  -   podobnie jak sól
             SecureRandom random = SecureRandom.getInstanceStrong();
             byte[] iv = new byte[16];
             random.nextBytes(iv);
@@ -82,7 +93,7 @@ public class Hashing {
 
     public static String decryptNote(String encryptedNote, String key, byte[] salt) {
         try {
-            Cipher cipher = Cipher.getInstance("AES/CFB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES/OFB/PKCS5Padding");
 
             // Zdekoduj połączony IV i zaszyfrowaną notatkę do tablicy bitowej
             byte[] combined = Base64.getDecoder().decode(encryptedNote);

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     String password_hash = "";
     String salt_s ="";
     public static String given_password="";
+    int badTries=0;
 
     byte[] salt;
 
@@ -49,6 +51,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Toast toast;
                 given_password = tv_password.getText().toString();
+                b_password.setEnabled(false);   //guzik po klikniecu 'mrozi' na sekunde
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        b_password.setEnabled(true);
+                    }
+                },1000);
 
                 boolean are_equal = false;
                 try {
@@ -66,15 +75,30 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else{
                     toast = Toast.makeText(getApplicationContext(), "password is not correct", Toast.LENGTH_LONG);
+                    badTries=badTries+1;
+                    if(badTries>=5){
+                        //cos zrobic jak za duzo zlych prob usun dane ://
+                        badTries=0;
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.clear();
+                        editor.apply();
+                        toast = Toast.makeText(getApplicationContext(), "5 bad tries, all data deleted", Toast.LENGTH_LONG);
 
+                    }
                 }
                 toast.show();
+
             }
         });
     }
 
     public static String getGiven_password() {
         return given_password;
+    }
+
+    public static void setGiven_password(String updated_password){
+        given_password=updated_password;
     }
 
     public void openActivity(){
