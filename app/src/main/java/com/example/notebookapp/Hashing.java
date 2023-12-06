@@ -14,6 +14,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.crypto.generators.BCrypt;
+import org.bouncycastle.crypto.params.KeyParameter;
+
+
 public class Hashing {
     public static void debugMessage(){
         Log.i("T","test");
@@ -33,7 +37,9 @@ public class Hashing {
         //co bedziemy szyfrowac
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        //PBKDF2 popularne dla systemów mobilnych (IOS używa):
+        //Hmac hash-based message authentication code
+        //PBKDF2 Password-Based Key Derivation Function
+        // popularne dla systemów mobilnych (IOS używa):
         //-potrzebuje mało mocy obliczeniowej - mało energii
         //-podatny na brute force
         //-trudno zaprogramować atak bruteforce na PBKDF2 na karcie graficznej
@@ -61,9 +67,14 @@ public class Hashing {
             Cipher cipher = Cipher.getInstance("AES/OFB/PKCS5Padding");
 
             // Wyznacz klucz z hasła i soli
-            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, iterations, keyLength);
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            byte[] derivedKey = skf.generateSecret(spec).getEncoded();
+//            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, iterations, keyLength);
+//            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+//            //zamiast PBKDF2 użyć scrypt dla wzmocnienia??
+//            byte[] derivedKey = skf.generateSecret(spec).getEncoded();
+//            SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
+//            WYZNACZANIE KLUCZA BCRYPT'EM
+            byte[] keyBytes = key.getBytes();
+            byte[] derivedKey = BCrypt.generate(keyBytes, salt, 12);
             SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
 
             // Wygeneruj losowy wektor inicjalizacyjny  -   podobnie jak sól
@@ -107,10 +118,14 @@ public class Hashing {
             System.arraycopy(combined, iv.length, encryptedBytes, 0, encryptedBytes.length);
 
             // Wyznacz klucz z hasła i soli
-            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, 10000, 256);
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            byte[] derivedKey = skf.generateSecret(spec).getEncoded();
+//            PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), salt, 10000, 256);
+//            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+//            byte[] derivedKey = skf.generateSecret(spec).getEncoded();
+//            SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
+            byte[] keyBytes = key.getBytes();
+            byte[] derivedKey = BCrypt.generate(keyBytes, salt, 12);
             SecretKey secretKey = new SecretKeySpec(derivedKey, "AES");
+
 
             // Inicjuj szyfrowanie kluczem i IV
             cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
